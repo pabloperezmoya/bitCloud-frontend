@@ -15,6 +15,7 @@ export const initialState = {
   recoverSelectedFolderName: null,
   fetchFiles: false,
   fetchFolders: false,
+  searchQuery: null,
 };
 
 type appActionType = {
@@ -41,10 +42,24 @@ enum ActionTypes {
   FETCH_FILES = "FETCH_FILES",
   FETCH_FOLDERS = "FETCH_FOLDERS",
   DELETE_FILE = "DELETE_FILE",
+  DELETE_FOLDER = "DELETE_FOLDER",
+  SET_SEARCH_QUERY = "SET_SEARCH_QUERY",
 }
 
 const appReducer = (state = initialState, action: appActionType) => {
   switch (action.type) {
+    case ActionTypes.SET_SEARCH_QUERY:
+      return {
+        ...state,
+        searchQuery: action.payload,
+      };
+
+    case ActionTypes.DELETE_FOLDER:
+      return {
+        ...state,
+        folders: action.payload,
+      };
+
     case ActionTypes.FETCH_FOLDERS:
       return {
         ...state,

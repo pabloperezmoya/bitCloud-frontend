@@ -1,13 +1,15 @@
 import { useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
+import { get } from "http";
 
 const useJwtToken = () => {
   const { getToken } = useAuth();
+  let jwtToken;
 
   useEffect(() => {
     const saveTokenToLocalStorage = async () => {
       try {
-        const jwtToken = (await getToken({ template: "userIDJWT" })) ?? "";
+        jwtToken = (await getToken({ template: "userIDJWT" })) ?? "";
         localStorage.setItem("jwtToken", jwtToken);
       } catch (error) {
         console.error("Error al obtener el token JWT:", error);
@@ -23,7 +25,6 @@ const useJwtToken = () => {
     try {
       const jwtToken = (await getToken({ template: "userIDJWT" })) ?? "";
       localStorage.setItem("jwtToken", jwtToken);
-      console.log("Token JWT actualizado correctamente.");
     } catch (error) {
       console.error("Error al obtener el token JWT:", error);
     }
@@ -31,6 +32,12 @@ const useJwtToken = () => {
 
   const getJwtToken = () => {
     const storedToken = localStorage.getItem("jwtToken");
+    if (!storedToken) {
+      console.error("No se encontró el token JWT en el localStorage.");
+      retryGetToken().then(() => {
+        getJwtToken();
+      });
+    }
     return storedToken;
   };
 

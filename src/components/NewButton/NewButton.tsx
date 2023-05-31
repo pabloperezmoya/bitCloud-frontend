@@ -119,32 +119,6 @@ const NewFolderModal = ({ isOpen, onClose, toast, ctxt, state, dispatch }) => {
   );
 };
 
-const FileUploadComponent = () => {
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    // Realiza la lógica deseada con el archivo seleccionado
-    console.log(file);
-  };
-
-  const handleButtonClick = () => {
-    fileInputRef?.current.click();
-  };
-
-  return (
-    <div>
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
-      <button onClick={handleButtonClick}>Seleccionar archivo</button>
-    </div>
-  );
-};
-
 export const handleFileSelected = async (
   file,
   ctxt,
@@ -189,7 +163,6 @@ export const handleFileSelected = async (
         }, 3000);
       }
     } catch (err) {
-      console.log(err);
       toast({
         title: "Error",
         description: "Error uploading file",
@@ -234,6 +207,21 @@ export const NewButton = ({ state, dispatch }) => {
             <PopoverBody>
               <Flex direction={"column"} gap={2}>
                 <Button
+                  isDisabled={state.selectedFolderName === "shared"}
+                  colorScheme="green"
+                  variant={"outline"}
+                  onClick={handleUploadFileClick}
+                >
+                  {state.selectedFolderName === "shared"
+                    ? "Disabled for this folder"
+                    : "Upload File"}
+                </Button>
+              </Flex>
+            </PopoverBody>
+            <Divider borderWidth={1} w={"auto"} />
+            <PopoverBody>
+              <Flex direction={"column"} gap={2}>
+                <Button
                   colorScheme="yellow"
                   variant={"outline"}
                   onClick={onOpen}
@@ -248,21 +236,6 @@ export const NewButton = ({ state, dispatch }) => {
                   state={state}
                   dispatch={dispatch}
                 />
-              </Flex>
-            </PopoverBody>
-            <Divider borderWidth={1} w={"auto"} />
-            <PopoverBody>
-              <Flex direction={"column"} gap={2}>
-                <Button
-                  colorScheme="green"
-                  variant={"outline"}
-                  onClick={handleUploadFileClick}
-                >
-                  Upload File
-                </Button>
-                <Button colorScheme="blue" variant={"outline"}>
-                  Upload Folder
-                </Button>
               </Flex>
             </PopoverBody>
           </PopoverContent>

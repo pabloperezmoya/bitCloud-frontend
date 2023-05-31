@@ -1,9 +1,12 @@
 import {
   ChevronDownIcon,
+  ChevronUpIcon,
   DeleteIcon,
   DownloadIcon,
   ExternalLinkIcon,
+  HamburgerIcon,
   InfoIcon,
+  TriangleDownIcon,
 } from "@chakra-ui/icons";
 import {
   Card,
@@ -49,7 +52,7 @@ type ModalProps = {
 const InfoModal: React.FC<ModalProps> = ({ isOpen, onOpen, onClose, data }) => {
   return (
     <>
-      <Button onClick={onOpen}>
+      <Button onClick={onOpen} variant={"ghost"}>
         <InfoIcon />
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -99,7 +102,6 @@ const MenuComponent: React.FC<MenuProps> = ({
 }) => {
   const toast = useToast();
   const { jwtToken, apiEndpointHost } = useContext(ApiContext);
-  console.log(jwtToken);
 
   const handleOnClickDownload = async () => {
     toast({
@@ -124,7 +126,6 @@ const MenuComponent: React.FC<MenuProps> = ({
         saveAs(blob, fileName);
       }
     } catch (error) {
-      console.log(error);
       toast({
         title: "Download Failed",
         description: "Something went wrong while downloading the file.",
@@ -151,7 +152,6 @@ const MenuComponent: React.FC<MenuProps> = ({
         );
 
       if (res.success) {
-        console.log(res.data);
         // dispatch ? not sure
         // paste to clipboard
         const url = `${window.location.origin}/dashboard/shared/${fileKey}/${res.data.shareId}`;
@@ -168,7 +168,6 @@ const MenuComponent: React.FC<MenuProps> = ({
         });
       }
     } catch (error) {
-      console.log(error);
       toast({
         title: "Share Failed",
         description: "Something went wrong while sharing the file.",
@@ -209,7 +208,6 @@ const MenuComponent: React.FC<MenuProps> = ({
         });
       }
     } catch (error) {
-      console.log(error);
       toast({
         title: "File Deletion Failed",
         description: "Something went wrong while deleting the file.",
@@ -219,24 +217,34 @@ const MenuComponent: React.FC<MenuProps> = ({
       });
     }
   };
+
   return (
     <Menu>
-      <MenuButton as={Button}>
-        <ChevronDownIcon boxSize={"5"} />
+      <MenuButton as={Button} variant={"ghost"}>
+        <HamburgerIcon boxSize={"5"} />
       </MenuButton>
       <MenuList>
         <MenuItem gap={1} onClick={handleOnClickDownload}>
           <DownloadIcon />
           Download
         </MenuItem>
-        <MenuItem gap={1} onClick={handleClickOnShare}>
-          <ExternalLinkIcon />
-          Share
-        </MenuItem>
-        <MenuItem gap={1} onClick={handleClickOnDelete}>
-          <DeleteIcon />
-          Delete
-        </MenuItem>
+        {state.selectedFolderName !== "shared" && (
+          <MenuItem gap={1} onClick={handleClickOnShare}>
+            <ExternalLinkIcon />
+            Share
+          </MenuItem>
+        )}
+        {state.selectedFolderName !== "shared" ? (
+          <MenuItem gap={1} onClick={handleClickOnDelete}>
+            <DeleteIcon />
+            Delete
+          </MenuItem>
+        ) : (
+          <MenuItem gap={1} onClick={handleClickOnDelete}>
+            <DeleteIcon />
+            Delete for me
+          </MenuItem>
+        )}
       </MenuList>
     </Menu>
   );
@@ -251,18 +259,27 @@ type Props = {
 type CardModalProps = {
   disc: any;
   file: fileType;
+  toast: any;
+  state: any;
+  dispatch: any;
 };
 
-const CardModal: React.FC<CardModalProps> = ({ disc, file }) => {
+const CardModal: React.FC<CardModalProps> = ({
+  disc,
+  file,
+  toast,
+  state,
+  dispatch,
+}) => {
   const ctxt = useContext(ApiContext);
   const audioRef = useRef<HTMLAudioElement>(null);
   const pdfRef = useRef<HTMLObjectElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const sourceBufferRef = useRef<SourceBuffer | null>(null);
   const [loading, setLoading] = useState(false);
   const [previewable, setPreviewable] = useState(true);
 
   useEffect(() => {
-    console.log("ON CARD MODAL");
     const fetchStream = async () => {
       setLoading(true);
       if (
@@ -289,6 +306,8 @@ const CardModal: React.FC<CardModalProps> = ({ disc, file }) => {
           if (blob.type.split("/")[0] == "audio") {
             const url = URL.createObjectURL(blob);
             audioRef.current.src = url;
+            audioRef.current.load();
+            //audioRef.current.play();
           } else if (blob.type == "application/pdf") {
             const url = URL.createObjectURL(blob);
             pdfRef.current.data = url;
@@ -296,7 +315,7 @@ const CardModal: React.FC<CardModalProps> = ({ disc, file }) => {
             const url = URL.createObjectURL(blob);
             imageRef.current.src = url;
           } else {
-            console.log("UNKNOWN MIME TYPE");
+            setPreviewable(false);
           }
         }
         setLoading(false);
@@ -305,6 +324,39 @@ const CardModal: React.FC<CardModalProps> = ({ disc, file }) => {
 
     fetchStream();
   }, []);
+
+  const handleOnClickDownload = async () => {
+    toast({
+      title: "Download Started",
+      description: "Download will start in a few seconds.",
+      status: "success",
+      duration: 9000,
+      isClosable: true,
+    });
+    try {
+      const response = await fetch(
+        `${ctxt.apiEndpointHost}/storage/files/${file.fileKey}/stream`,
+        {
+          headers: {
+            Authorization: `Bearer ${ctxt.jwtToken}`,
+          },
+        }
+      ).catch((err) => dispatch({ type: ActionTypes.SET_ERROR, payload: err }));
+
+      if (response.ok) {
+        const blob = await response.blob();
+        saveAs(blob, file.originalName);
+      }
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Something went wrong while downloading the file.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Modal
@@ -317,19 +369,23 @@ const CardModal: React.FC<CardModalProps> = ({ disc, file }) => {
         <ModalHeader>
           <Text noOfLines={1}>{file.originalName}</Text>
         </ModalHeader>
-        <ModalCloseButton />
+
         <ModalBody>
           <Center>
             {previewable && <Text>Not Preview Available</Text>}
 
             {loading && <Spinner />}
             {file.mimetype.split("/")[0] == "audio" && (
-              <audio ref={audioRef} controls></audio>
+              <audio
+                style={{ width: "100%" }}
+                ref={audioRef}
+                controls
+                autoPlay
+              ></audio>
             )}
             {file.mimetype == "application/pdf" && (
               <object
                 ref={pdfRef}
-                data=""
                 type="application/pdf"
                 width="100%"
                 style={{ height: "calc(75vh - 100px)" }}
@@ -342,7 +398,20 @@ const CardModal: React.FC<CardModalProps> = ({ disc, file }) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={disc.onClose}>
+          <Button
+            colorScheme="blue"
+            mr={3}
+            onClick={handleOnClickDownload}
+            leftIcon={<DownloadIcon />}
+          >
+            Download
+          </Button>
+          <Button
+            colorScheme="blue"
+            mr={3}
+            onClick={disc.onClose}
+            variant={"ghost"}
+          >
             Close
           </Button>
         </ModalFooter>
@@ -354,6 +423,7 @@ const CardModal: React.FC<CardModalProps> = ({ disc, file }) => {
 const File: React.FC<Props> = ({ file, state, dispatch }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const disc = useDisclosure();
+  const toast = useToast();
 
   return (
     <Card
@@ -374,18 +444,26 @@ const File: React.FC<Props> = ({ file, state, dispatch }) => {
       }}
     >
       <div onClick={disc.onOpen}>
-        {disc.isOpen && <CardModal disc={disc} file={file} />}
+        {disc.isOpen && (
+          <CardModal
+            disc={disc}
+            file={file}
+            toast={toast}
+            state={state}
+            dispatch={dispatch}
+          />
+        )}
         <CardHeader paddingBottom={0}>
           <Center>
             <Image
               src={
                 file?.mimetype?.includes("audio")
-                  ? "/public/icons/sound_file.png"
-                  : "/public/icons/doc_file.png"
+                  ? "/icons/sound_file.png"
+                  : "/icons/doc_file.png"
               }
               alt="file icon"
               boxSize="100%"
-              maxH="140px"
+              maxH="120px"
               p={10}
               objectFit="contain"
               borderRadius={10}

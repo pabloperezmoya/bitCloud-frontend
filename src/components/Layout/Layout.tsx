@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { UserButton, useAuth } from "@clerk/clerk-react";
 import MainContent from "../MainContent/MainContent";
 import Sidebar from "../Sidebar/Sidebar";
-import { useEffect, useReducer, useState, useContext } from "react";
+import { useEffect, useReducer, useContext } from "react";
 import { appReducer, ActionTypes, initialState } from "../../reducer";
 
 import { ApiContext } from "../../api/apiContext";
@@ -17,17 +16,20 @@ import {
 } from "@chakra-ui/react";
 
 import "./Layout.css";
-import { Header } from "../../Header/Header";
+import { Header } from "../Header/Header";
 import useJwtToken from "../../hooks/useJwtToken";
-import Dropzone from "../Dropzone/Dropzone";
 import { useParams, useNavigate } from "react-router-dom";
-//import { useAPI } from "../../hooks/useApi";
 
-const Layout = ({ receiveShare }) => {
+type Props = {
+  receiveShare?: boolean;
+};
+
+const Layout: React.FC<Props> = ({ receiveShare }) => {
   const { fileKey, shareId } = useParams();
   const navigate = useNavigate();
   const [state, dispatch] = useReducer(appReducer, initialState);
   const jwtToken = useJwtToken();
+
   const ctxt = useContext(ApiContext);
   ctxt.jwtToken = jwtToken.getJwtToken() as string;
   const toast = useToast();
@@ -46,7 +48,7 @@ const Layout = ({ receiveShare }) => {
     if (state.recoverSelectedFolderName) {
       // SI SE QUIERE RECUPERAR ALGO
       const persistedFolderName = localStorage.getItem("persistedFolderName");
-      console.log({ persistedFolderName });
+
       if (persistedFolderName) {
         dispatch({
           type: ActionTypes.SET_SELECTED_FOLDER_NAME,
@@ -76,7 +78,7 @@ const Layout = ({ receiveShare }) => {
           type: ActionTypes.SET_SELECTED_FOLDER_NAME,
           payload: "shared",
         });
-
+        dispatch({ type: ActionTypes.FETCH_FILES });
         toast({
           title: "File Received",
           description: "File received successfully. Saved in Shared Folder",
@@ -89,6 +91,8 @@ const Layout = ({ receiveShare }) => {
 
     if (receiveShare && fileKey && shareId) {
       fetchData();
+    } else {
+      dispatch({ type: ActionTypes.FETCH_FOLDERS });
     }
   }, []);
 
@@ -117,11 +121,13 @@ const Layout = ({ receiveShare }) => {
       width="100%"
       maxH={"100vh"}
       overflowY={"hidden"}
+      marginBlockStart={2}
+      marginEnd={2}
     >
-      <Header />
+      <Header state={state} dispatch={dispatch} />
 
       <Flex direction={direction} padding={0}>
-        <Container maxW={maxWSideBar} padding={0} marginBottom={10}>
+        <Container maxW={maxWSideBar} padding={0} marginBottom={5}>
           <Sidebar
             state={state}
             dispatch={dispatch}

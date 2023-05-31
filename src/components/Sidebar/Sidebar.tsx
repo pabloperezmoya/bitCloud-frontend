@@ -21,13 +21,12 @@ import {
   Stack,
   Skeleton,
 } from "@chakra-ui/react";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import { NewButton } from "../NewButton/NewButton";
 import { ActionTypes } from "../../reducer";
 import { ApiContext } from "../../api/apiContext";
-import useJwtToken from "../../hooks/useJwtToken";
 
 type Props = {
   state: any;
@@ -69,7 +68,6 @@ const Sidebar: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
   }) as ResponsiveValue<any>;
 
   const handleClickOnFolder = (folder: folderType) => {
-    console.log("clicked on folder: ", folder.folderName);
     dispatch({
       type: ActionTypes.SET_SELECTED_FOLDER,
       payload: folder,
@@ -114,7 +112,6 @@ const Sidebar: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
           payload: data,
         });
       }
-      console.log("ON FOLDER FETCH: ", state.folders);
     };
     fetchFolders();
   }, [state.fetchFolders]);
@@ -139,7 +136,12 @@ const Sidebar: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
         size="md"
       />
 
-      <Flex direction={direction.flexDir} gap={2}>
+      <Flex
+        direction={direction.flexDir}
+        gap={2}
+        overflowX={"auto"}
+        wrap={"wrap"}
+      >
         {state.loadingFolders && (
           <Stack gap={2} padding={2}>
             <Skeleton height={5} padding={0} />
