@@ -1,21 +1,16 @@
 import {
-  ChevronDownIcon,
-  ChevronUpIcon,
   DeleteIcon,
   DownloadIcon,
   ExternalLinkIcon,
   HamburgerIcon,
   InfoIcon,
-  TriangleDownIcon,
 } from "@chakra-ui/icons";
 import {
   Card,
   CardBody,
   CardFooter,
   CardHeader,
-  Select,
   Image,
-  Box,
   MenuButton,
   Menu,
   MenuList,
@@ -268,14 +263,13 @@ const CardModal: React.FC<CardModalProps> = ({
   disc,
   file,
   toast,
-  state,
+
   dispatch,
 }) => {
   const ctxt = useContext(ApiContext);
   const audioRef = useRef<HTMLAudioElement>(null);
   const pdfRef = useRef<HTMLObjectElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const sourceBufferRef = useRef<SourceBuffer | null>(null);
   const [loading, setLoading] = useState(false);
   const [previewable, setPreviewable] = useState(true);
 

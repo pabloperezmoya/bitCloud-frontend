@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { get } from "http";
 
 const useJwtToken = () => {
   const { getToken } = useAuth();

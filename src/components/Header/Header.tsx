@@ -7,16 +7,7 @@ import {
   SimpleGrid,
   Stack,
   Text,
-  InputRightAddon,
-  Flex,
-  Kbd,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   Input,
-  ModalBody,
-  useDisclosure,
   useBreakpointValue,
   ResponsiveValue,
 } from "@chakra-ui/react";
@@ -30,7 +21,7 @@ type Props = {
   dispatch: any;
 };
 
-export const Header: React.FC<Props> = ({ state, dispatch }) => {
+export const Header: React.FC<Props> = ({ dispatch }) => {
   const [input, setInput] = useState("");
 
   useEffect(() => {
@@ -44,12 +35,6 @@ export const Header: React.FC<Props> = ({ state, dispatch }) => {
       });
     }
   }, [input]);
-
-  const searchButtonShowKBD = useBreakpointValue({
-    base: false,
-    sm: false,
-    md: true,
-  }) as ResponsiveValue<any>;
 
   const columnSearch = useBreakpointValue({
     base: {

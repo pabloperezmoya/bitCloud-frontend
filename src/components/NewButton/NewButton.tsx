@@ -19,7 +19,6 @@ import {
   useDisclosure,
   Input,
   Text,
-  List,
   ListItem,
   UnorderedList,
 } from "@chakra-ui/react";
@@ -27,7 +26,7 @@ import { useRef, useContext, useState } from "react";
 import { ApiContext } from "../../api/apiContext";
 import { ActionTypes } from "../../reducer";
 
-const NewFolderModal = ({ isOpen, onClose, toast, ctxt, state, dispatch }) => {
+const NewFolderModal = ({ isOpen, onClose, toast, ctxt, dispatch }) => {
   const [inputValue, setInputValue] = useState("");
 
   const handleCreateFolderButton = async () => {
@@ -187,8 +186,6 @@ export const NewButton = ({ state, dispatch }) => {
   const ctxt = useContext(ApiContext);
   const toast = useToast();
 
-  const handleNewFolderClick = async () => {};
-
   const handleUploadFileClick = () => {
     fileInputRef?.current.click();
   };
@@ -233,7 +230,7 @@ export const NewButton = ({ state, dispatch }) => {
                   onClose={onClose}
                   toast={toast}
                   ctxt={ctxt}
-                  state={state}
+                  //state={state}
                   dispatch={dispatch}
                 />
               </Flex>

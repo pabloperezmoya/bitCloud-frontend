@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   ClerkProvider,
   RedirectToSignIn,
@@ -32,8 +31,7 @@ if (!import.meta.env.VITE_REACT_APP_CLERK_PUBLISHABLE_KEY) {
 const clerkPubKey = import.meta.env.VITE_REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 function PublicPage() {
-  const [userID, setUserID] = useState<any>("");
-  const { isSignedIn, isLoaded, getToken } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
 
   const { fileKey, shareId } = useParams();
 
@@ -46,7 +44,6 @@ function PublicPage() {
         <>
           <Link to="/dashboard">Go to Dashboard🚀</Link>
           <UserButton />
-          {userID && <p>Your userID is: {userID}</p>}
         </>
       ) : (
         <SignInButton afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard" />

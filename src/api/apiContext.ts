@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import { createContext } from "react";
 
 const initialApiEndpointHost =
   import.meta.env.MODE === "development"
