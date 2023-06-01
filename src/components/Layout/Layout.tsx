@@ -31,7 +31,7 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
   const jwtToken = useJwtToken();
 
   const ctxt = useContext(ApiContext);
-  ctxt.jwtToken = jwtToken.getJwtToken() as string;
+
   const toast = useToast();
 
   useEffect(() => {
@@ -59,6 +59,8 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
   }, [state.recoverSelectedFolderName]);
 
   useEffect(() => {
+    ctxt.jwtToken = jwtToken.getJwtToken() as string;
+
     const fetchData = async () => {
       const data = await fetch(
         `${ctxt.apiEndpointHost}/storage/files/${fileKey}/share/${shareId}`,

@@ -42,7 +42,6 @@ const MainContent: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch({ type: ActionTypes.SET_LOADING_FILES });
       if (state.selectedFolderName !== null) {
         const data = await fetch(
           `${ctxt.apiEndpointHost}/folders/${state.selectedFolderName}?populate=true`,
@@ -181,7 +180,7 @@ const MainContent: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
               <Skeleton height={200} w={150} />
             </>
           )}
-          {!state.loadingFiles && state.files.length === 0 && (
+          {!state.loadingFiles && state.files && state.files.length === 0 && (
             <Center flexDirection={"column"}>
               <Image
                 src="/icons/empty_folder.png"
