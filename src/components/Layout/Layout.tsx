@@ -121,8 +121,6 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
       width="100%"
       maxH={"100vh"}
       overflowY={"hidden"}
-      marginBlockStart={2}
-      marginEnd={2}
     >
       <Header state={state} dispatch={dispatch} />
 
