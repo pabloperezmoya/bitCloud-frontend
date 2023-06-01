@@ -17,8 +17,8 @@ import {
 
 import "./Layout.css";
 import { Header } from "../Header/Header";
-import useJwtToken from "../../hooks/useJwtToken";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "@clerk/clerk-react";
 
 type Props = {
   receiveShare?: boolean;
@@ -28,7 +28,7 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
   const { fileKey, shareId } = useParams();
   const navigate = useNavigate();
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const jwtToken = useJwtToken();
+  // const jwtToken = useJwtToken();
 
   const ctxt = useContext(ApiContext);
 
@@ -59,8 +59,6 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
   }, [state.recoverSelectedFolderName]);
 
   useEffect(() => {
-    ctxt.jwtToken = jwtToken.getJwtToken() as string;
-
     const fetchData = async () => {
       const data = await fetch(
         `${ctxt.apiEndpointHost}/storage/files/${fileKey}/share/${shareId}`,
@@ -97,6 +95,22 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
       dispatch({ type: ActionTypes.FETCH_FOLDERS });
     }
   }, []);
+  const { getToken } = useAuth();
+  useEffect(() => {
+    const fetchJWTToken = async () => {
+      let jwtToken;
+      try {
+        jwtToken = (await getToken({ template: "userIDJWT" })) ?? "";
+        ctxt.jwtToken = jwtToken;
+        localStorage.setItem("jwtToken", jwtToken);
+      } catch (error) {
+        console.error("Error al obtener el token JWT:", error);
+        // Intentar obtener un nuevo token
+        fetchJWTToken();
+      }
+    };
+    fetchJWTToken();
+  }, []);
 
   // Breakpoints.ts
   const direction = useBreakpointValue({
@@ -131,7 +145,7 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
           <Sidebar
             state={state}
             dispatch={dispatch}
-            jwtToken={jwtToken}
+            // jwtToken={jwtToken}
             //reload={reload}
           />
         </Container>
@@ -140,7 +154,7 @@ const Layout: React.FC<Props> = ({ receiveShare }) => {
 
         <Container maxW={maxWMainContent} padding={0} margin={0}>
           {/* <Dropzone ctxt={ctxt} state={state} dispatch={dispatch} toast={toast}> */}
-          <MainContent state={state} dispatch={dispatch} jwtToken={jwtToken} />
+          <MainContent state={state} dispatch={dispatch} />
           {/* </Dropzone> */}
         </Container>
       </Flex>

@@ -20,7 +20,6 @@ import { ApiContext } from "../../api/apiContext";
 type Props = {
   state: any;
   dispatch: any;
-  jwtToken: any;
 };
 
 type folderType = {
@@ -40,7 +39,7 @@ type responseType = {
   data?: any;
 };
 
-const Sidebar: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
+const Sidebar: React.FC<Props> = ({ state, dispatch }) => {
   const direction = useBreakpointValue({
     base: {
       flexDir: "row",
@@ -81,7 +80,7 @@ const Sidebar: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
         `${ctxt.apiEndpointHost}/folders?populate=true`,
         {
           headers: {
-            Authorization: `Bearer ${jwtToken.getJwtToken()}`,
+            Authorization: `Bearer ${ctxt.jwtToken}`,
           },
         }
       )
@@ -103,7 +102,7 @@ const Sidebar: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
       }
     };
     fetchFolders();
-  }, [state.fetchFolders]);
+  }, [state.fetchFolders, ctxt.jwtToken]);
 
   useEffect(() => {
     // recover persisted folder name

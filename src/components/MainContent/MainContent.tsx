@@ -20,7 +20,6 @@ import { DeleteIcon, ExternalLinkIcon, RepeatIcon } from "@chakra-ui/icons";
 type Props = {
   state: any;
   dispatch: any;
-  jwtToken: any;
 };
 
 export type fileType = {
@@ -36,7 +35,7 @@ export type fileType = {
   __v: number;
   _id: string;
 };
-const MainContent: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
+const MainContent: React.FC<Props> = ({ state, dispatch }) => {
   const ctxt = useContext(ApiContext);
   const toast = useToast();
 
@@ -47,7 +46,7 @@ const MainContent: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
           `${ctxt.apiEndpointHost}/folders/${state.selectedFolderName}?populate=true`,
           {
             headers: {
-              Authorization: `Bearer ${jwtToken.getJwtToken()}`,
+              Authorization: `Bearer ${ctxt.jwtToken}`,
             },
           }
         )
@@ -81,7 +80,7 @@ const MainContent: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${jwtToken.getJwtToken()}`,
+            Authorization: `Bearer ${ctxt.jwtToken}`,
           },
         }
       )
@@ -193,14 +192,9 @@ const MainContent: React.FC<Props> = ({ state, dispatch, jwtToken }) => {
             </Center>
           )}
           {!state.loadingFiles && !state.searchQuery ? (
-            state.files.map((file: fileType) => {
+            state.files.map((file: fileType, i) => {
               return (
-                <File
-                  file={file}
-                  key={file._id}
-                  state={state}
-                  dispatch={dispatch}
-                />
+                <File file={file} key={i} state={state} dispatch={dispatch} />
               );
             })
           ) : (
